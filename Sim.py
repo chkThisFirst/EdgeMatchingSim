@@ -101,6 +101,7 @@ class Simulator:
 
     # TODO generate a figure for the network with all links issued
     def generate_fig(self):
+        # use external lib
         pass
 
 class Node:
