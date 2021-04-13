@@ -64,6 +64,7 @@ class Simulator:
         pass
 
 
+
     # assign Edges and Devices' preferences
     def assign_preference(self, edgesPref, devsPref):
         """
@@ -97,6 +98,10 @@ class Simulator:
             eachDev.print_preference()
         for k, eachLink in self.Links.items():
             eachLink.print_self()
+
+    # TODO generate a figure for the network with all links issued
+    def generate_fig(self):
+        pass
 
 class Node:
     def __init__(self, nType, ID, pos, task, comp):
