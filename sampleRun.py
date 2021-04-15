@@ -44,12 +44,14 @@ def main():
     # generate method #1 for all edges and devices
 #    print(type(mySim.Devices))
     edgesPref_1, devsPref_1 = distance_only(mySim.Devices, mySim.Edges)
-    print(edgesPref_1)
-    print(devsPref_1)
-    edgesPref_1, devsPref_1 = distance_max(mySim.Devices, mySim.Edges, 20)
-    print(edgesPref_1)
-    print(devsPref_1)
+##    print(edgesPref_1)
+##    print(devsPref_1)
+    edgesPref_2, devsPref_2 = distance_max(mySim.Devices, mySim.Edges, 20)
+##    print(edgesPref_1)
+##    print(devsPref_1)
     mySim.assign_preference(edgesPref_1, devsPref_1)
+    mySim.print_network()
+    mySim.assign_preference(edgesPref_2, devsPref_2)
     mySim.print_network()
 
 
