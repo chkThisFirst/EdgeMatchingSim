@@ -1,7 +1,7 @@
 from Sim import Simulator
 import random
 from generatePreference import distance_only
-
+from generatePreference import distance_max
 
 def random_preference(deviceIDs, edgeIDs):
     edgesPref = {}
@@ -44,6 +44,9 @@ def main():
     # generate method #1 for all edges and devices
 #    print(type(mySim.Devices))
     edgesPref_1, devsPref_1 = distance_only(mySim.Devices, mySim.Edges)
+    print(edgesPref_1)
+    print(devsPref_1)
+    edgesPref_1, devsPref_1 = distance_max(mySim.Devices, mySim.Edges, 20)
     print(edgesPref_1)
     print(devsPref_1)
 
