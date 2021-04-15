@@ -40,8 +40,6 @@ def distance_only(Devices, Edges):
         devsPref[eachDev] = tempDevPref
 
 
-    print(edgesPref)
-    print(devsPref)
 
     return edgesPref, devsPref
 
@@ -60,6 +58,7 @@ def distance_max(Devices, Edges, max_dis):
             task_dic[eachDev] = eachDev.task
         sorted_task = dict(sorted(task_dic.items(), key=operator.itemgetter(1)))
         tempEdgePref = list(sorted_task.keys())
+        
             
         edgesPref[eachEdge] = tempEdgePref
 
@@ -78,9 +77,5 @@ def distance_max(Devices, Edges, max_dis):
         tempDevPref = list(sorted_distance.keys())
 
         devsPref[eachDev] = tempDevPref
-
-
-    print(edgesPref)
-    print(devsPref)
 
     return edgesPref, devsPref
