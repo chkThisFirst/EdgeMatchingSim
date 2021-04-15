@@ -1,5 +1,6 @@
 from Sim import Simulator
 import random
+from generatePreference import distance_only
 
 
 def random_preference(deviceIDs, edgeIDs):
@@ -31,14 +32,22 @@ def random_matching(sim):
 
 def main():
     mySim = Simulator(20, 5, 5, (50, 200), (5, 10), (10, 50))
-    # generate random preference for all edges and devices
-    edgesPref, devsPref = random_preference(mySim.deviceIDs, mySim.edgeIDs)
-    mySim.assign_preference(edgesPref, devsPref)
-    # generate random matching between edges and devices. For simple demo, this DID NOT use preference
-    matchingGraph = random_matching(mySim)
-    mySim.assign_links(matchingGraph)
+##    # generate random preference for all edges and devices
+##    edgesPref, devsPref = random_preference(mySim.deviceIDs, mySim.edgeIDs)
+##    mySim.assign_preference(edgesPref, devsPref)
+##    # generate random matching between edges and devices. For simple demo, this DID NOT use preference
+##    matchingGraph = random_matching(mySim)
+##    mySim.assign_links(matchingGraph)
+##
+##    mySim.print_network()
 
-    mySim.print_network()
+    # generate method #1 for all edges and devices
+#    print(type(mySim.Devices))
+    edgesPref_1, devsPref_1 = distance_only(mySim.Devices, mySim.Edges)
+    print(edgesPref_1)
+    print(devsPref_1)
+
+
 
 
 if __name__ == "__main__":
