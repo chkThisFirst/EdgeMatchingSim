@@ -13,6 +13,8 @@ import operator
 def distance_only(Devices, Edges):
     edgesPref = {}
     devsPref = {}
+    edgesPref_ID = {}
+    devsPref_ID = {}
     devices = list(Devices.values())
     edges = list(Edges.values())
 
@@ -39,15 +41,27 @@ def distance_only(Devices, Edges):
 
         devsPref[eachDev] = tempDevPref
 
+    for key in edgesPref:
+        value_ID = []
+        for value in edgesPref[key]:
+            value_ID.append(value.ID)
+        edgesPref_ID[key.ID] = value_ID
 
+    for key in devsPref:
+        value_ID = []
+        for value in devsPref[key]:
+            value_ID.append(value.ID)
+        devsPref_ID[key.ID] = value_ID
 
-    return edgesPref, devsPref
+    return edgesPref_ID, devsPref_ID
 
 
 # TODO- method 2
 def distance_max(Devices, Edges, max_dis):
     edgesPref = {}
     devsPref = {}
+    edgesPref_ID = {}
+    devsPref_ID = {}
     devices = list(Devices.values())
     edges = list(Edges.values())
     max_dis_sq = max_dis ** 2
@@ -78,4 +92,16 @@ def distance_max(Devices, Edges, max_dis):
 
         devsPref[eachDev] = tempDevPref
 
-    return edgesPref, devsPref
+    for key in edgesPref:
+        value_ID = []
+        for value in edgesPref[key]:
+            value_ID.append(value.ID)
+        edgesPref_ID[key.ID] = value_ID
+
+    for key in devsPref:
+        value_ID = []
+        for value in devsPref[key]:
+            value_ID.append(value.ID)
+        devsPref_ID[key.ID] = value_ID
+
+    return edgesPref_ID, devsPref_ID
