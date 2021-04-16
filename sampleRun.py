@@ -2,6 +2,8 @@ from Sim import Simulator
 import random
 from generatePreference import distance_only
 from generatePreference import distance_max
+from generateMatching import mpda
+from generateMatching import mpda_random
 
 def random_preference(deviceIDs, edgeIDs):
     edgesPref = {}
@@ -50,9 +52,17 @@ def main():
 ##    print(edgesPref_1)
 ##    print(devsPref_1)
     mySim.assign_preference(edgesPref_1, devsPref_1)
+##    print(mySim.Edges)
+    matchingGraph_1 = mpda(edgesPref_1, devsPref_1)
+##    print(matchingGraph_1)
+    mySim.assign_links(matchingGraph_1)
     mySim.print_network()
-    mySim.assign_preference(edgesPref_2, devsPref_2)
+    matchingGraph_2 = mpda_random(edgesPref_1, devsPref_1)
+##    print(matchingGraph_2)
+    mySim.assign_links(matchingGraph_2)
     mySim.print_network()
+##    mySim.assign_preference(edgesPref_2, devsPref_2)
+##    
 
 
 if __name__ == "__main__":
