@@ -57,10 +57,13 @@ def main():
 ##    print(matchingGraph_1)
     mySim.assign_links(matchingGraph_1)
     mySim.print_network()
+    mySim.generate_fig()
+    
     matchingGraph_2 = mpda_random(edgesPref_1, devsPref_1)
 ##    print(matchingGraph_2)
     mySim.assign_links(matchingGraph_2)
     mySim.print_network()
+    mySim.generate_fig()
 ##    mySim.assign_preference(edgesPref_2, devsPref_2)
 ##    
 

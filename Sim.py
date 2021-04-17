@@ -2,6 +2,11 @@
 #import Link
 import random
 
+# run this first: 
+#!pip install networkx
+import networkx as nx
+import matplotlib.pyplot as plt
+
 
 class Simulator:
     def __init__(self, posUpper, numEdge, numDev, taskRange, compRange, BWRange):
@@ -9,9 +14,9 @@ class Simulator:
         :param posUpper: a positive integer
         :param numEdge: a positive integer
         :param numDev: a positive integer
-        :param taskRange: (lower_bound, upper_bound) two postive integers
-        :param compRange: (lower_bound, upper_bound) two postive integers
-        :param BWRange: (lower_bound, upper_bound) two postive integers
+        :param taskRange: (lower_bound, upper_bound) two positive integers
+        :param compRange: (lower_bound, upper_bound) two positive integers
+        :param BWRange: (lower_bound, upper_bound) two positive integers
         """
         xList = random.sample(range(posUpper * -1, posUpper), numEdge + numDev)
         yList = random.sample(range(posUpper * -1, posUpper), numEdge + numDev)
@@ -99,11 +104,52 @@ class Simulator:
         for k, eachLink in self.Links.items():
             eachLink.print_self()
 
-    # TODO generate a figure for the network with all links issued
+    # generate a figure for the network with all links issued
     def generate_fig(self):
-        # use external lib
-        pass
+        G = nx.Graph()
+        
+        # add nodes + colors
+        node_colors = ['red']
+        G.add_node(self.Cloud.ID)
+        
+        node_colors += ['orange']*len(self.Edges.keys())
+        G.add_nodes_from(self.Edges.keys())
+        
+        node_colors += ['yellow']*len(self.Devices.keys())
+        G.add_nodes_from(self.Devices.keys())
+        
+        # add edges
+        edges = []
+        for k, eachLink in self.Links.items():
+            tempLink = (eachLink.getStartID(), eachLink.getEndID())
+            edges.append(tempLink)
+        
+        G.add_edges_from(edges)
+        
+        # add nodes positions and labels
+        positions = {self.Cloud.ID: self.Cloud.pos}
+        node_labels = {self.Cloud.ID: self.Cloud.nType}
+        
+        for i, eachEdge in self.Edges.items():
+            positions[eachEdge.ID] = eachEdge.pos
+            node_labels[eachEdge.ID] = "ID: " + str(eachEdge.ID) + "\ncomp: " + str(eachEdge.comp)
+            
+        for j, eachDev in self.Devices.items():
+            positions[eachDev.ID] = eachDev.pos
+            node_labels[eachDev.ID] = "ID: " + str(eachDev.ID) + "\ntask: " + str(eachDev.task)
 
+        #create a plot to view the network
+        plt.figure(figsize=(12,12))
+        nx.draw_networkx(G, positions, labels=node_labels,
+                         with_labels=True, node_size=800, 
+                         node_color=node_colors,
+                         font_size=12, font_weight=600, width=1.5,
+                         verticalalignment='bottom')
+                
+        plt.title("Network Graph",
+                  {'color':'black', 'fontsize':16})
+        plt.show()
+            
 class Node:
     def __init__(self, nType, ID, pos, task, comp):
         avaiableNodes = ['Cloud','Edge','Device']
@@ -133,7 +179,7 @@ class Link:
     def __init__(self, startID, endID, speed):
         """
         :param startID: Always follow device->edge->cloud. That means startID must be from higher level tier. i.e startID can never be from cloud
-        :param endID: Always follow device->edge->cloud. That means startID must be from higher level tier. i.e endID can never be from device
+        :param endID: Always follow device->edge->cloud. That means endID must be from higher level tier. i.e endID can never be from device
         :param speed:
         """
         self.startID = startID
@@ -146,5 +192,8 @@ class Link:
     def setEndID(self, newEndID):
         self.endID = newEndID
 
+    def getEndID(self):
+        return self.endID
+    
     def print_self(self):
         print('startID:',self.startID,' endID:', self.endID,' speed:', str(self.speed))
