@@ -108,41 +108,46 @@ class Simulator:
     def generate_fig(self):
         G = nx.Graph()
         
-        # add nodes + colors
+        # add nodes, colors, positions, and labels
+        positions = {self.Cloud.ID: self.Cloud.pos}
+        node_labels = {self.Cloud.ID: self.Cloud.nType + "\n" + str(self.Cloud.ID)}
         node_colors = ['red']
         G.add_node(self.Cloud.ID)
-        
-        node_colors += ['orange']*len(self.Edges.keys())
-        G.add_nodes_from(self.Edges.keys())
-        
-        node_colors += ['yellow']*len(self.Devices.keys())
-        G.add_nodes_from(self.Devices.keys())
-        
-        # add edges
-        edges = []
-        for k, eachLink in self.Links.items():
-            tempLink = (eachLink.getStartID(), eachLink.getEndID())
-            edges.append(tempLink)
-        
-        G.add_edges_from(edges)
-        
-        # add nodes positions and labels
-        positions = {self.Cloud.ID: self.Cloud.pos}
-        node_labels = {self.Cloud.ID: self.Cloud.nType}
         
         for i, eachEdge in self.Edges.items():
             positions[eachEdge.ID] = eachEdge.pos
             node_labels[eachEdge.ID] = "ID: " + str(eachEdge.ID) + "\ncomp: " + str(eachEdge.comp)
+            G.add_node(eachEdge.ID)
+            node_colors.append('#FF8F00')
             
         for j, eachDev in self.Devices.items():
             positions[eachDev.ID] = eachDev.pos
             node_labels[eachDev.ID] = "ID: " + str(eachDev.ID) + "\ntask: " + str(eachDev.task)
-
-        #create a plot to view the network
+            G.add_node(eachDev.ID)
+            node_colors.append('#00d700')
+        
+        # add edges and edges styles
+        edge_styles = []
+        edges = []
+        for k, eachLink in self.Links.items():
+            tempLink = (eachLink.getStartID(), eachLink.getEndID())
+            edges.append(tempLink)
+            
+            # set edge style
+            # if cloud -> edge: solid
+            # if edge -> device: dashed
+            if (eachLink.getEndID() == self.Cloud.ID):
+                edge_styles.append('solid')
+            else:
+                edge_styles.append('dotted')
+            
+        G.add_edges_from(edges)
+        
+        # create a plot to view the network
         plt.figure(figsize=(12,12))
         nx.draw_networkx(G, positions, labels=node_labels,
-                         with_labels=True, node_size=800, 
-                         node_color=node_colors,
+                         with_labels=True, node_size=800, alpha=0.85,
+                         node_color=node_colors, style=edge_styles,
                          font_size=12, font_weight=600, width=1.5,
                          verticalalignment='bottom')
                 
