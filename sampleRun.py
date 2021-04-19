@@ -1,3 +1,5 @@
+import math
+
 from Sim import Simulator
 import random
 from generatePreference import distance_only
@@ -113,25 +115,56 @@ def testPrefV2MatchingV2():
 
 
 def testFairness():
-    fairnessList = []
-    for i in range(5):
+    fairnessList_1 = []
+    unmatchedNumList_1 = []
+    fairnessList_2 = []
+
+
+    MAPSIZE = 1000
+    EDGE = 200
+    DEVICE = 200
+    TASK = (10, 1000)
+    COMPUTING = (5, 50)
+    BANDWIDTH = (2, 100)
+    FILE = (20, 1000)
+    for i in range(20):
         print('Simulation #', i)
-        mySim = Simulator(20, 5, 5, (50, 200), (5, 10), (10, 50), (200, 500))
-        edgesPref_1, devsPref_1 = distance_only(mySim.Devices, mySim.Edges)
+
+
+
+        mySim = Simulator(MAPSIZE, EDGE, DEVICE, TASK, COMPUTING, BANDWIDTH, FILE)
+        edgesPref_1, devsPref_1 = limited_distance(mySim.Devices, mySim.Edges, math.sqrt(MAPSIZE))
         mySim.assign_preference(edgesPref_1, devsPref_1)
-        matchingGraph_1 = mpda(edgesPref_1, devsPref_1)
+
+        matchingGraph_1 = matchingMPDA(edgesPref_1, devsPref_1)
         mySim.assign_links(matchingGraph_1)
-        mySim.print_preference()
-        mySim.generate_fig()
-        fairnessList.append(mySim.compute_fairness())
+        #mySim.print_preference()
+        #mySim.generate_fig()
+        fairIndex_1 = mySim.compute_fairness()
+        fairnessList_1.append(fairIndex_1)
+        unmacthed_1 = mySim.compute_unmatched()
+        print("unmacthed edge:", unmacthed_1)
+        unmatchedNumList_1.append(unmacthed_1)
+
+
+        matchingGraph_2 = random_matching(mySim)
+        mySim.assign_links(matchingGraph_2)
+        fairIndex_2 = mySim.compute_fairness()
+        fairnessList_2.append(fairIndex_2)
+
+
         print('Simulation #', i, " ends")
 
-    print("fairnessList: ", fairnessList)
-    print("avg fairness: ", sum(fairnessList)/len(fairnessList))
+
+    print("fairnessList_1: ", fairnessList_1)
+    print("avg fairness: ", sum(fairnessList_1)/len(fairnessList_1))
+    print("avg unmatched: ", sum(unmatchedNumList_1) / len(unmatchedNumList_1))
+    print("fairnessList_2: ", fairnessList_2)
+    print("avg fairness: ", sum(fairnessList_2) / len(fairnessList_2))
 
 
 if __name__ == "__main__":
     #main()
     #testMatching()
-    #testFairness()
-    testPrefV2MatchingV2()
+    testFairness()
+    #testPrefV2MatchingV2()

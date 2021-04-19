@@ -83,7 +83,7 @@ class Simulator:
                 tempServ = self.Cloud
 
             tempSpeed = tempLink.speed
-            tempComp = self.Edges[tempLink.endID].comp
+            tempComp = tempServ.comp
             tempDistance = math.sqrt((tempDevice.pos[0] - tempServ.pos[0])**2 +
                                      (tempDevice.pos[0] - tempServ.pos[0])**2)
 
@@ -131,6 +131,15 @@ class Simulator:
         """
         for eachGraph in matchingGraph:
             self.Links[eachGraph[0]].setEndID(eachGraph[1])
+
+    # find the number of unmatched edges
+    def compute_unmatched(self):
+        unmatched = 0
+        for eachLink in self.Links.values():
+            if eachLink.getEndID() == "c0":
+                unmatched += 1
+        return unmatched - len(self.edgeIDs)
+
 
     # print network
     def print_network(self):
