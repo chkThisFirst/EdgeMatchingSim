@@ -28,6 +28,7 @@ def mpda(edgesPref, devsPref):
     
     # While there exists at least one unmarried man:
     while unmarriedMen:
+        #print("unmatched:", unmarriedMen)
         # Pick an arbitrary unmarried man
         his_name = unmarriedMen[0]
         he = unmarriedMen.index(his_name)
@@ -80,8 +81,8 @@ def mpda(edgesPref, devsPref):
              unmarriedMen.insert(0,currentHusband)
           else:
              nextManChoice[he] = nextManChoice[he] + 1
-             
-           
+        #print("matching graph:", manSpouse)
+    #print("-----------------------Done---------------------")
             
   
     return manSpouse
@@ -161,8 +162,4 @@ def mpda_random(edgesPref, devsPref):
              unmarriedMen.insert(0,currentHusband)
           else:
              nextManChoice[he] = nextManChoice[he] + 1
-             
-           
-            
-  
     return manSpouse

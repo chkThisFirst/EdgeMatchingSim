@@ -1,5 +1,6 @@
 #import Node
 #import Link
+import math
 import random
 
 # run this first: 
@@ -9,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 class Simulator:
-    def __init__(self, posUpper, numEdge, numDev, taskRange, compRange, BWRange):
+    def __init__(self, posUpper, numEdge, numDev, taskRange, compRange, BWRange, fileRange):
         """
         :param posUpper: a positive integer
         :param numEdge: a positive integer
@@ -24,7 +25,7 @@ class Simulator:
         self.deviceIDs = []
 
         # By default, there is only one cloud with infinite computing power
-        self.Cloud = Node('Cloud', 'c0', (0, 0), 0, float("inf"))
+        self.Cloud = Node('Cloud', 'c0', (0, 0), 0, float("inf"), 0)
 
         # generate a list of Edge nodes
         self.Edges = {}
@@ -34,7 +35,7 @@ class Simulator:
             tempPos = (xList[i], yList[i])
             # tempTask = random.randint(taskRange[0], taskRange[1])
             tempComp = random.randint(compRange[0], compRange[1])
-            tempEdge = Node('Edge', tempID, tempPos, 0, tempComp)
+            tempEdge = Node('Edge', tempID, tempPos, 0, tempComp, 0)
             self.Edges[tempEdge.getID()] = tempEdge
 
         # generate a list of Device nodes
@@ -44,15 +45,16 @@ class Simulator:
             self.deviceIDs.append(tempID)
             tempPos = (xList[numEdge + j], yList[numEdge + j])
             tempTask = random.randint(taskRange[0], taskRange[1])
+            tempFile = random.randint(fileRange[0], fileRange[1])
             # tempComp = random.randint(compRange[0], compRange[1])
-            tempDev = Node('Device', tempID, tempPos, tempTask, 0)
+            tempDev = Node('Device', tempID, tempPos, tempTask, 0, tempFile)
             self.Devices[tempDev.getID()] = tempDev
 
         # initialize links between Cloud and Edges
         self.Links = {}
         for h in range(numEdge):
             tempEdgeID = self.edgeIDs[h]
-            tempBW = float("inf")
+            tempBW = float('inf')
             tempLink = Link(tempEdgeID, 'c0', tempBW)
             self.Links[tempLink.getStartID()] = tempLink
 
@@ -66,8 +68,46 @@ class Simulator:
 
     # TODO-compute fairness
     def compute_fairness(self):
-        pass
+        e2eLatencyList = []
 
+        # latency = task/comp + file*2/link.speed + distance
+        for eachDev in self.Devices:
+            tempDevice = self.Devices[eachDev]
+            tempTask = tempDevice.task
+            tempFile = tempDevice.file
+            tempLink = self.Links[tempDevice.ID]
+
+            if tempLink.endID != 'c0':
+                tempServ = self.Edges[tempLink.endID]
+            else:
+                tempServ = self.Cloud
+
+            tempSpeed = tempLink.speed
+            tempComp = self.Edges[tempLink.endID].comp
+            tempDistance = math.sqrt((tempDevice.pos[0] - tempServ.pos[0])**2 +
+                                     (tempDevice.pos[0] - tempServ.pos[0])**2)
+
+            tempLatency = tempTask/tempComp + tempFile*2/tempSpeed + tempDistance
+
+            e2eLatencyList.append(tempLatency)
+
+        totalLatency = sum(e2eLatencyList)
+        #print('totalLatency: ', totalLatency)
+        #print('e2eLatencyList: ', e2eLatencyList)
+
+        # compute final fairness
+        upper = 0
+        for i in e2eLatencyList:
+            upper += i/totalLatency
+        upper = upper ** 2
+
+        lower = 0
+        for j in e2eLatencyList:
+            lower += (j/totalLatency) ** 2
+        lower = lower * len(e2eLatencyList)
+
+        latencyFairness = upper/lower
+        return latencyFairness
 
 
     # assign Edges and Devices' preferences
@@ -97,12 +137,20 @@ class Simulator:
         self.Cloud.print_self()
         for i, eachEdge in self.Edges.items():
             eachEdge.print_self()
-            eachEdge.print_preference()
         for j, eachDev in self.Devices.items():
             eachDev.print_self()
-            eachDev.print_preference()
         for k, eachLink in self.Links.items():
             eachLink.print_self()
+
+    # print preference
+    def print_preference(self):
+        for i, eachEdge in self.Edges.items():
+            print(eachEdge.ID, " 's preference:")
+            eachEdge.print_preference()
+        for j, eachDev in self.Devices.items():
+            print(eachDev.ID, " 's preference:")
+            eachDev.print_preference()
+
 
     # generate a figure for the network with all links issued
     def generate_fig(self):
@@ -156,7 +204,7 @@ class Simulator:
         plt.show()
             
 class Node:
-    def __init__(self, nType, ID, pos, task, comp):
+    def __init__(self, nType, ID, pos, task, comp, file):
         avaiableNodes = ['Cloud','Edge','Device']
         if nType in avaiableNodes:
             self.nType = nType
@@ -164,6 +212,7 @@ class Node:
             self.pos = pos
             self.task = task
             self.comp = comp
+            self.file = file
             self.preference = []
         else:
             raise ValueError("Invalid nType input!")
@@ -178,7 +227,8 @@ class Node:
         return self.ID
 
     def print_self(self):
-        print('nType:',self.nType,' ID:', self.ID,' pos:', str(self.pos),' task:', str(self.task),' comp:', str(self.comp))
+        print('nType:',self.nType,' ID:', self.ID,' pos:', str(self.pos),' task:', str(self.task),
+              ' comp:', str(self.comp), ' file:', str(self.file))
 
 class Link:
     def __init__(self, startID, endID, speed):

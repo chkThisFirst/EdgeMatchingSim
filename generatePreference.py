@@ -3,10 +3,11 @@ TODO- method 1: Generate preference for Devices using euclidean distance only, a
 generate preferences for Edges using Devices' task size only
 
 TODO- method 2: Generate preferences for Devices based on computing power within X euclidean distance, and
-generate preferences for Edges using Devices' task size only
+generate preferences for Edges using Devices' task size within Y euclidean distance
 
 TODO- method 3..: other possible preferences
 """
+import math
 import operator
 
 # TODO- method 1
@@ -57,6 +58,7 @@ def distance_only(Devices, Edges):
 
 
 # TODO- method 2
+
 def distance_max(Devices, Edges, max_dis):
     edgesPref = {}
     devsPref = {}
@@ -105,3 +107,41 @@ def distance_max(Devices, Edges, max_dis):
         devsPref_ID[key.ID] = value_ID
 
     return edgesPref_ID, devsPref_ID
+
+
+def limited_distance(Devices, Edges, maxDistance):
+    edgesPref = {}
+    devsPref = {}
+
+    # generate Devices' preferences
+    for eachDev in Devices.values():
+        singleDevPref = {}
+
+        for eachEdge in Edges.values():
+            distance = math.sqrt((eachDev.pos[0] - eachEdge.pos[0])**2 + (eachDev.pos[0] - eachEdge.pos[0])**2)
+            # check if within the range
+            if distance <= maxDistance:
+                singleDevPref[eachEdge.ID] = eachEdge.comp
+
+        sortedSinDevPref = dict(sorted(singleDevPref.items(), key=operator.itemgetter(1), reverse=True))
+        tempSinDevPref = list(sortedSinDevPref.keys())
+        tempSinDevPref.append('c0')
+        devsPref[eachDev.ID] = tempSinDevPref
+
+    # generate Edges' preferences, within distance, task load first. out of range, distance first
+    for eachEdge in Edges.values():
+        singleEdgePref = {}
+
+        for eachDev in Devices.values():
+            distance = math.sqrt((eachDev.pos[0] - eachEdge.pos[0])**2 + (eachDev.pos[0] - eachEdge.pos[0])**2)
+            # check if within the range
+            if distance <= maxDistance:
+                singleEdgePref[eachDev.ID] = eachDev.task
+            else:
+                singleEdgePref[eachDev.ID] = distance*-1
+
+        sortedSinEdgePref = dict(sorted(singleEdgePref.items(), key=operator.itemgetter(1), reverse=True))
+        tempSinEdgePref = list(sortedSinEdgePref.keys())
+        edgesPref[eachEdge.ID] = tempSinEdgePref
+
+    return edgesPref, devsPref
