@@ -66,16 +66,16 @@ class Simulator:
             self.Links[tempLink.getStartID()] = tempLink
 
 
-    # TODO-compute fairness
     def compute_fairness(self):
         e2eLatencyList = []
 
-        # latency = task/comp + file*2/link.speed + distance
+        # latency = task/comp + file/link.speed + distance*2
         for eachDev in self.Devices:
             tempDevice = self.Devices[eachDev]
             tempTask = tempDevice.task
             tempFile = tempDevice.file
             tempLink = self.Links[tempDevice.ID]
+            #print('tempLink.endID:',tempLink.endID)
 
             if tempLink.endID != 'c0':
                 tempServ = self.Edges[tempLink.endID]
@@ -85,9 +85,9 @@ class Simulator:
             tempSpeed = tempLink.speed
             tempComp = tempServ.comp
             tempDistance = math.sqrt((tempDevice.pos[0] - tempServ.pos[0])**2 +
-                                     (tempDevice.pos[0] - tempServ.pos[0])**2)
+                                     (tempDevice.pos[1] - tempServ.pos[1])**2)
 
-            tempLatency = tempTask/tempComp + tempFile*2/tempSpeed + tempDistance
+            tempLatency = tempTask/tempComp + tempFile*2/tempSpeed + tempDistance*2
 
             e2eLatencyList.append(tempLatency)
 
@@ -107,7 +107,7 @@ class Simulator:
         lower = lower * len(e2eLatencyList)
 
         latencyFairness = upper/lower
-        return latencyFairness
+        return latencyFairness, totalLatency
 
 
     # assign Edges and Devices' preferences

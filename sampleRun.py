@@ -8,6 +8,7 @@ from generatePreference import limited_distance
 from generateMatching import mpda
 from generateMatching import mpda_random
 from generateMatchingV2 import matchingMPDA
+from generateMatchingV2 import matchingOptimal
 
 def random_preference(deviceIDs, edgeIDs):
     edgesPref = {}
@@ -117,7 +118,10 @@ def testPrefV2MatchingV2():
 def testFairness():
     fairnessList_1 = []
     unmatchedNumList_1 = []
+    totalLatencyList_1 = []
+
     fairnessList_2 = []
+    totalLatencyList_2 = []
 
 
     MAPSIZE = 1000
@@ -134,14 +138,16 @@ def testFairness():
 
         mySim = Simulator(MAPSIZE, EDGE, DEVICE, TASK, COMPUTING, BANDWIDTH, FILE)
         edgesPref_1, devsPref_1 = limited_distance(mySim.Devices, mySim.Edges, math.sqrt(MAPSIZE))
+        #edgesPref_1, devsPref_1 = distance_only(mySim.Devices, mySim.Edges)
         mySim.assign_preference(edgesPref_1, devsPref_1)
 
         matchingGraph_1 = matchingMPDA(edgesPref_1, devsPref_1)
         mySim.assign_links(matchingGraph_1)
         #mySim.print_preference()
         #mySim.generate_fig()
-        fairIndex_1 = mySim.compute_fairness()
+        fairIndex_1, totalLatency_1 = mySim.compute_fairness()
         fairnessList_1.append(fairIndex_1)
+        totalLatencyList_1.append(totalLatency_1)
         unmacthed_1 = mySim.compute_unmatched()
         print("unmacthed edge:", unmacthed_1)
         unmatchedNumList_1.append(unmacthed_1)
@@ -149,22 +155,61 @@ def testFairness():
 
         matchingGraph_2 = random_matching(mySim)
         mySim.assign_links(matchingGraph_2)
-        fairIndex_2 = mySim.compute_fairness()
+        fairIndex_2, totalLatency_2 = mySim.compute_fairness()
         fairnessList_2.append(fairIndex_2)
+        totalLatencyList_2.append(totalLatency_2)
 
 
         print('Simulation #', i, " ends")
 
 
     print("fairnessList_1: ", fairnessList_1)
-    print("avg fairness: ", sum(fairnessList_1)/len(fairnessList_1))
+    print("avg fairness_1: ", sum(fairnessList_1)/len(fairnessList_1))
     print("avg unmatched: ", sum(unmatchedNumList_1) / len(unmatchedNumList_1))
     print("fairnessList_2: ", fairnessList_2)
-    print("avg fairness: ", sum(fairnessList_2) / len(fairnessList_2))
+    print("avg fairness_2: ", sum(fairnessList_2) / len(fairnessList_2))
+
+    print("totalLatencyList_1: ", totalLatencyList_1)
+    print("avg totalLatency_1: ", sum(totalLatencyList_1) / len(totalLatencyList_1))
+    print("totalLatencyList_2: ", totalLatencyList_2)
+    print("avg totalLatency_2: ", sum(totalLatencyList_2) / len(totalLatencyList_2))
+
+
+def testOptimalMatching():
+    MAPSIZE = 25
+    EDGE = 8
+    DEVICE = 8
+    TASK = (10, 1000)
+    COMPUTING = (5, 50)
+    BANDWIDTH = (2, 100)
+    FILE = (20, 1000)
+    mySim = Simulator(MAPSIZE, EDGE, DEVICE, TASK, COMPUTING, BANDWIDTH, FILE)
+    edgesPref_1, devsPref_1 = limited_distance(mySim.Devices, mySim.Edges, math.sqrt(MAPSIZE))
+    mySim.assign_preference(edgesPref_1, devsPref_1)
+
+    matchingGraph_1 = matchingMPDA(edgesPref_1, devsPref_1)
+    mySim.assign_links(matchingGraph_1)
+
+    fairIndex_1, totalLatency_1 = mySim.compute_fairness()
+    print('fairIndex_1:', fairIndex_1)
+    print('totalLatency_1:', totalLatency_1)
+    unmacthed_1 = mySim.compute_unmatched()
+    print("unmacthed edge:", unmacthed_1)
+
+    matchingGraph_2 = random_matching(mySim)
+    mySim.assign_links(matchingGraph_2)
+    fairIndex_2, totalLatency_2 = mySim.compute_fairness()
+    print('fairIndex_2:', fairIndex_2)
+    print('totalLatency_2:', totalLatency_2)
+
+    fairMatching, lowLatencyMatching = matchingOptimal(mySim)
+    print('optimalFairMatching-> fairIndex:', fairMatching[1], " totalLatency:", fairMatching[2])
+    print('optimalLowLatencyMatching-> fairIndex:', lowLatencyMatching[1], " totalLatency:", lowLatencyMatching[2])
 
 
 if __name__ == "__main__":
     #main()
     #testMatching()
-    testFairness()
+    #testFairness()
     #testPrefV2MatchingV2()
+    testOptimalMatching()
